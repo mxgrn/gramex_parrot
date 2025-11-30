@@ -62,3 +62,8 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+# import *.local.exs if the file exists
+if File.exists?("#{Path.dirname(__ENV__.file)}/#{Mix.env()}.local.exs") do
+  import_config "#{Mix.env()}.local.exs"
+end

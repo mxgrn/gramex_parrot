@@ -2,7 +2,11 @@ defmodule GramexParrot.TelegramBot do
   use GenServer
   require Logger
 
-  @api_base "https://api.telegram.org/bot"
+  @api_base Application.compile_env(
+              :gramex_parrot,
+              :telegram_api_base,
+              "https://api.telegram.org"
+            )
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -31,6 +35,7 @@ defmodule GramexParrot.TelegramBot do
       case get_updates(state.token, state.offset) do
         {:ok, updates} ->
           send(parent, {:updates, updates})
+
         {:error, reason} ->
           Logger.error("Failed to get updates: #{inspect(reason)}")
           # Wait a bit before retrying
@@ -57,18 +62,21 @@ defmodule GramexParrot.TelegramBot do
   end
 
   defp get_updates(token, offset) do
-    url = "#{@api_base}#{token}/getUpdates"
+    url = "#{@api_base}/bot#{token}/getUpdates"
 
     params = %{
       offset: offset,
-      timeout: 60  # Long polling timeout in seconds
+      # Long polling timeout in seconds
+      timeout: 60
     }
 
     case Req.post(url, json: params) do
       {:ok, %{status: 200, body: %{"ok" => true, "result" => result}}} ->
         {:ok, result}
+
       {:ok, %{status: status, body: body}} ->
         {:error, "HTTP #{status}: #{inspect(body)}"}
+
       {:error, reason} ->
         {:error, reason}
     end
@@ -97,7 +105,7 @@ defmodule GramexParrot.TelegramBot do
   end
 
   defp send_message(token, chat_id, text) do
-    url = "#{@api_base}#{token}/sendMessage"
+    url = "#{@api_base}/bot#{token}/sendMessage"
 
     params = %{
       chat_id: chat_id,
@@ -108,9 +116,11 @@ defmodule GramexParrot.TelegramBot do
       {:ok, %{status: 200}} ->
         Logger.info("Sent echo message to chat #{chat_id}")
         :ok
+
       {:ok, %{status: status, body: body}} ->
         Logger.error("Failed to send message: HTTP #{status}: #{inspect(body)}")
         :error
+
       {:error, reason} ->
         Logger.error("Failed to send message: #{inspect(reason)}")
         :error
