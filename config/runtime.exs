@@ -23,6 +23,8 @@ end
 config :gramex_parrot, GramexParrotWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+config :gramex_parrot, :telegram_bot_token, System.get_env("TELEGRAM_BOT_TOKEN")
+
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

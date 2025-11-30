@@ -35,3 +35,4 @@ gramex_parrot-*.tar
 npm-debug.log
 /assets/node_modules/
 
+.local.env

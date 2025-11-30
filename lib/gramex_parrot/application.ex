@@ -13,6 +13,7 @@ defmodule GramexParrot.Application do
       {Phoenix.PubSub, name: GramexParrot.PubSub},
       # Start a worker by calling: GramexParrot.Worker.start_link(arg)
       # {GramexParrot.Worker, arg},
+      GramexParrot.TelegramBot,
       # Start to serve requests, typically the last entry
       GramexParrotWeb.Endpoint
     ]
