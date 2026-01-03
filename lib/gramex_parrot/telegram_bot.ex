@@ -70,7 +70,7 @@ defmodule GramexParrot.TelegramBot do
       timeout: 60
     }
 
-    case Req.post(url, json: params) do
+    case Req.post(url, json: params, receive_timeout: :infinity) do
       {:ok, %{status: 200, body: %{"ok" => true, "result" => result}}} ->
         {:ok, result}
 
@@ -86,7 +86,7 @@ defmodule GramexParrot.TelegramBot do
 
   defp process_updates(updates, token, _offset) do
     Enum.each(updates, fn update ->
-      handle_update(update, token)
+      process_update(update, token)
     end)
 
     # Return the next offset (last update_id + 1)
@@ -94,12 +94,12 @@ defmodule GramexParrot.TelegramBot do
     last_update["update_id"] + 1
   end
 
-  defp handle_update(%{"message" => %{"text" => text, "chat" => %{"id" => chat_id}}}, token) do
+  defp process_update(%{"message" => %{"text" => text, "chat" => %{"id" => chat_id}}}, token) do
     Logger.info("Received message: #{text} from chat #{chat_id}")
-    send_message(token, chat_id, text)
+    send_message(token, chat_id, "received: " <> text)
   end
 
-  defp handle_update(_update, _token) do
+  defp process_update(_update, _token) do
     # Ignore non-text messages
     :ok
   end
